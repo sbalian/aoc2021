@@ -10,20 +10,16 @@ def read_report(path):
 def part1(path):
     report = read_report(path)
     inc = 0
-    n = len(report)
-    for i in range(1, n):
-        current = report[i]
-        previous = report[i - 1]
-        if current > previous:
+    for i in range(1, len(report)):
+        if report[i] > report[i - 1]:
             inc += 1
     return inc
 
 
 def part2(path):
     report = read_report(path)
-    n = len(report)
     inc = 0
-    for i in range(n - 3):
+    for i in range(len(report) - 3):
         if report[i + 3] > report[i]:
             inc += 1
     return inc
