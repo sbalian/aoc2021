@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
 
-import copy
-
-
 def read(path):
     with open(path) as f:
         timers = list(map(int, f.read().strip().split(",")))
@@ -11,6 +8,7 @@ def read(path):
 
 
 def slow(timers, num_steps):
+    timers = list(timers)
     step = 0
     n = len(timers)
     while step < num_steps:
@@ -52,7 +50,7 @@ def part2(timers):
 def main():
 
     timers = read("example.txt")
-    assert slow(copy.copy(timers), 10) == fast(timers, 10)
+    assert slow(timers, 10) == fast(timers, 10)
     assert part1(timers) == 5934
     assert part2(timers) == 26984457539
 
