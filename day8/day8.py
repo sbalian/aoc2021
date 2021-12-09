@@ -106,7 +106,7 @@ def solve(record):
         f"{top}{tr}{br}": "7",
     }
 
-    # Sort the keys and the patterns in the outut
+    # Sort the keys and the patterns in the output
     digits = {"".join(sorted(k)): v for k, v in digits.items()}
     output = ["".join(sorted(x)) for x in output]
     return int("".join([digits[d] for d in output]))
