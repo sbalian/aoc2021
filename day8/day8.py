@@ -126,6 +126,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# TODO just thought of a much better way of solving this ...
