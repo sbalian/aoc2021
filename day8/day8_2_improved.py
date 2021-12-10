@@ -11,9 +11,6 @@ def read_records(path):
     return records
 
 
-EASY_DIGIT_LENGTHS = {1: 2, 4: 4, 7: 3, 8: 7}
-
-
 def solve(record):
     patterns, output = record
     patterns, six_patterns, five_patterns = set(patterns), set([]), set([])
