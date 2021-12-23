@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import math
 
 
 def read_hex(path):
@@ -57,6 +58,73 @@ def get_num_subpackets(array, start):
     return bin2int(array2string(array[start:to])), to
 
 
+OPERATIONS = {
+    0: sum,
+    1: math.prod,
+    2: min,
+    3: max,
+    5: lambda x: int(x[0] > x[1]),
+    6: lambda x: int(x[0] < x[1]),
+    7: lambda x: int(x[0] == x[1]),
+}
+
+
+class Parser:
+    def __init__(self, hex_):
+        self.versions = []
+        self.array = list(hex2bin(hex_))
+
+    def parse(self, start):
+        version, start = get_version(self.array, start)
+        self.versions.append(version)
+        packet_type_id, start = get_packet_type_id(self.array, start)
+
+        if packet_type_id == 4:
+            value, start = get_literal(self.array, start)
+        else:
+
+            operands = []
+            operation = OPERATIONS[packet_type_id]
+
+            length_type_id, start = get_length_type_id(self.array, start)
+            if length_type_id == "1":
+                n, start = get_num_subpackets(self.array, start)
+                i = 0
+                while i < n:
+                    start, value = self.parse(start)
+                    operands.append(value)
+                    i += 1
+            else:
+                length, start = get_length(self.array, start)
+                distance = 0
+                prev = start
+                while distance < length:
+                    start, value = self.parse(start)
+                    distance += start - prev
+                    prev = start
+                    operands.append(value)
+            value = operation(operands)
+        return start, value
+
+    def sum_versions(self):
+        return sum(self.versions)
+
+
+def main():
+    hex_ = read_hex("input.txt")
+    parser = Parser(hex_)
+    _, value = parser.parse(0)
+    assert parser.sum_versions() == 984
+    assert value == 1015320896946
+    print("All tests passed.")
+
+
+def test():
+    test_literal()
+    test_operator1()
+    test_operator2()
+
+
 def test_literal():
     array = list(hex2bin("D2FE28"))
     start = 0
@@ -93,57 +161,6 @@ def test_operator2():
     assert n == 3
 
 
-class Parser:
-    def __init__(self, hex_):
-        self.versions = []
-        self.array = list(hex2bin(hex_))
-
-    def parse(self, start):
-        version, start = get_version(self.array, start)
-        self.versions.append(version)
-        packet_type_id, start = get_packet_type_id(self.array, start)
-
-        if packet_type_id == 4:
-            value, start = get_literal(self.array, start)
-        else:
-            length_type_id, start = get_length_type_id(self.array, start)
-            if length_type_id == "1":
-                n, start = get_num_subpackets(self.array, start)
-                i = 0
-                while i < n:
-                    start = self.parse(start)
-                    i += 1
-            else:
-                length, start = get_length(self.array, start)
-                distance = 0
-                prev = start
-                while distance < length:
-                    start = self.parse(start)
-                    distance += start - prev
-                    prev = start
-        return start
-
-    @property
-    def sum_versions(self):
-        self.parse(0)
-        return sum(self.versions)
-
-
-def test():
-    test_literal()
-    test_operator1()
-    test_operator2()
-
-
-def part1(hex_):
-    return hex2bin(hex_)
-
-
-def main():
-    hex_ = read_hex("input.txt")
-    assert Parser(hex_).sum_versions == 984
-    print("All tests passed.")
-
-
 if __name__ == "__main__":
+    test()
     main()
