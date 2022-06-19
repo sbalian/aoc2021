@@ -62,8 +62,6 @@ def dijkstra(graph, grid, source, target):
         if u == target:
             return dist[target]
         for v in graph[u]:
-            if v not in q:
-                continue
             alt = dist[u] + grid[v[0]][v[1]]
             if alt < dist[v]:
                 dist[v] = alt
