@@ -54,16 +54,12 @@ def shortest_path_length(grid, expand=False):
         grid = expand_grid(grid)
     rows, cols = len(grid), len(grid[0])
     graph = nx.DiGraph()
+    edge_data = []
     for i in range(rows):
         for j in range(cols):
-            graph.add_node((i, j))
-
-    for node in graph.nodes:
-        for neighbor in get_neighbors(node[0], node[1], rows, cols):
-            graph.add_edge(
-                node, neighbor, weight=grid[neighbor[0]][neighbor[1]]
-            )
-
+            for (m, n) in get_neighbors(i, j, rows, cols):
+                edge_data.append(((i, j), (m, n), grid[m][n]))
+    graph.add_weighted_edges_from(edge_data)
     return nx.shortest_path_length(
         graph, (0, 0), (rows - 1, cols - 1), weight="weight"
     )
