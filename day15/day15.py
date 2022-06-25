@@ -1,7 +1,44 @@
 #!/usr/bin/env python
 
+import heapq
+import itertools
 import math
 from collections import defaultdict
+
+
+class PriorityQueue:
+
+    # From official Python heapq docs ...
+
+    counter = itertools.count()
+    REMOVED = "<removed-task>"
+
+    def __init__(self):
+        self.items = []
+        self.entry_finder = {}
+
+    def add(self, task, priority=0):
+        if task in self.entry_finder:
+            self.remove(task)
+        count = next(PriorityQueue.counter)
+        entry = [priority, count, task]
+        self.entry_finder[task] = entry
+        heapq.heappush(self.items, entry)
+
+    def remove(self, task):
+        entry = self.entry_finder.pop(task)
+        entry[-1] = PriorityQueue.REMOVED
+
+    def pop_task(self):
+        while self.items:
+            _, _, task = heapq.heappop(self.items)
+            if task is not PriorityQueue.REMOVED:
+                del self.entry_finder[task]
+                return task
+        raise KeyError("pop from an empty priority queue")
+
+    def __len__(self):
+        return len(self.entry_finder)
 
 
 def read_grid(path):
@@ -42,29 +79,26 @@ def build_graph(grid):
 
 
 def dijkstra(graph, grid, source, target):
-
-    q = set([])
     dist = {}
-    for v in graph:
-        dist[v] = math.inf
-        q.add(v)
     dist[source] = 0
+    q = PriorityQueue()
+    q.add(source, dist[source])
+    for v in graph:
+        if v != source:
+            dist[v] = math.inf
+            q.add(v, dist[v])
 
     while len(q) != 0:
-        min_dist = math.inf
-        min_v = None
-        for v in q:
-            if dist[v] < min_dist:
-                min_dist = dist[v]
-                min_v = v
-        u = min_v
-        q.remove(u)
+        u = q.pop_task()
         if u == target:
-            return dist[target]
+            return dist[u]
         for v in graph[u]:
             alt = dist[u] + grid[v[0]][v[1]]
             if alt < dist[v]:
                 dist[v] = alt
+                q.add(v, alt)
+
+    raise RuntimeError("target not reached")
 
 
 def add_value(x, value):
@@ -101,7 +135,6 @@ def main():
 
     grid = read_grid("input.txt")
     assert shortest_path_length(grid) == 698
-    # This takes 3 hours ... !
     assert shortest_path_length(grid, expand=True) == 3022
     print("All tests passed.")
 
