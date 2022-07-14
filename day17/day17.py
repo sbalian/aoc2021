@@ -48,7 +48,7 @@ def part2(target_area):
             x, y = 0, 0
             v_x_c = v_x
             v_y_c = v_y
-            while True:
+            while (x <= max_x) and (y >= min_y):
                 if (min_x <= x <= max_x) and (min_y <= y <= max_y):
                     hit = True
                     v_allowed += 1
@@ -58,8 +58,6 @@ def part2(target_area):
                 if v_x_c != 0:
                     v_x_c -= 1
                 v_y_c -= 1
-                if (x > max_x) or (y < min_y):
-                    break
             if hit:
                 continue
     return v_allowed
